@@ -111,38 +111,45 @@ namespace NZWalks.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] AddRegionDTO addRegionDTO)
         {
-            //Map DTO to Domain
-            //var regionDomain = new Region
-            //{
-            //    Code = addRegionDTO.Code,
-            //    Name = addRegionDTO.Name,
-            //    RegionImageUrl = addRegionDTO.RegionImageUrl,
-            //};
+            if (ModelState.IsValid)
+            {
+                //Map DTO to Domain
+                //var regionDomain = new Region
+                //{
+                //    Code = addRegionDTO.Code,
+                //    Name = addRegionDTO.Name,
+                //    RegionImageUrl = addRegionDTO.RegionImageUrl,
+                //};
 
-            //Using Mapper
-            var regionDomain = mapper.Map<Region>(addRegionDTO);
+                //Using Mapper
+                var regionDomain = mapper.Map<Region>(addRegionDTO);
 
-            //Use Domain Model to create region
-            //await _dbContext.Regions.AddAsync(regionDomain);
-            //await _dbContext.SaveChangesAsync();
+                //Use Domain Model to create region
+                //await _dbContext.Regions.AddAsync(regionDomain);
+                //await _dbContext.SaveChangesAsync();
 
-            //Now, using repository pattern...
-            regionDomain = await regionRepository.CreateAsync(regionDomain);
+                //Now, using repository pattern...
+                regionDomain = await regionRepository.CreateAsync(regionDomain);
 
 
-            //Map Domain model back to DTO
-            //var regionDTO = new RegionDTO
-            //{
-            //    Id = regionDomain.Id,
-            //    Code = regionDomain.Code,
-            //    Name = regionDomain.Name,
-            //    RegionImageUrl = regionDomain.RegionImageUrl,
-            //};
+                //Map Domain model back to DTO
+                //var regionDTO = new RegionDTO
+                //{
+                //    Id = regionDomain.Id,
+                //    Code = regionDomain.Code,
+                //    Name = regionDomain.Name,
+                //    RegionImageUrl = regionDomain.RegionImageUrl,
+                //};
 
-            //Using AutoMapper
-            var regionDTO =  mapper.Map<RegionDTO>(regionDomain);
+                //Using AutoMapper
+                var regionDTO = mapper.Map<RegionDTO>(regionDomain);
 
-            return CreatedAtAction(nameof(GetById), new {id = regionDTO.Id}, regionDTO);
+                return CreatedAtAction(nameof(GetById), new { id = regionDTO.Id }, regionDTO);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
 
         }
 
