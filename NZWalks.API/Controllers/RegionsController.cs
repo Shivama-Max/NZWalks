@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
@@ -20,7 +21,7 @@ namespace NZWalks.API.Controllers
 
         // GET ALL : https://localhost:portnumber/api/regions
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             //var regions = new List<Region>
             //{
@@ -41,7 +42,7 @@ namespace NZWalks.API.Controllers
             //};
 
             //Get Data From Database
-            var regionsDomain = _dbContext.Regions.ToList();
+            var regionsDomain = await _dbContext.Regions.ToListAsync();
             //Map Domain Models to DTOs
 
             var regionsDTO = new List<RegionDTO>();
@@ -63,10 +64,10 @@ namespace NZWalks.API.Controllers
         // GET BY ID : https://localhost:portnumber/api/regions/{id}
         [HttpGet]
         [Route("{id}")]
-        public IActionResult GetById(Guid id) {
+        public async Task<IActionResult> GetById(Guid id) {
             //var region = _dbContext.Regions.Find(id);  //Works only with primary key (here, id)
             //Get Region Domain Model from DB
-            var regionDomain = _dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomain = await _dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
             if (regionDomain == null)
             {
                 return NotFound();
@@ -86,7 +87,7 @@ namespace NZWalks.API.Controllers
 
         // POST : https://localhost:portnumber/api/regions
         [HttpPost]
-        public IActionResult Create([FromBody] AddRegionDTO addRegionDTO)
+        public async Task<IActionResult> Create([FromBody] AddRegionDTO addRegionDTO)
         {
             //Convert DTO to Domain
             var regionDomain = new Region
@@ -97,8 +98,8 @@ namespace NZWalks.API.Controllers
             };
 
             //Use Domain Model to create region
-            _dbContext.Regions.Add(regionDomain);
-            _dbContext.SaveChanges();
+            await _dbContext.Regions.AddAsync(regionDomain);
+            await _dbContext.SaveChangesAsync();
 
             //Map Domain model back to DTO
             var regionDTO = new RegionDTO
@@ -115,9 +116,9 @@ namespace NZWalks.API.Controllers
         //PUT : https://localhost:portnumber/api/regions/{id}
         [HttpPut]
         [Route("{id:guid}")]
-        public IActionResult Update([FromRoute]Guid id,[FromBody] UpdateRegionDTO updateRegionDTO)
+        public async Task<IActionResult> Update([FromRoute]Guid id,[FromBody] UpdateRegionDTO updateRegionDTO)
         {
-            var regionDomainModel=_dbContext.Regions.FirstOrDefault(x => x.Id == id);
+            var regionDomainModel= await _dbContext.Regions.FirstOrDefaultAsync(x => x.Id == id);
             //Check if region exists
             if(regionDomainModel == null)
             {
@@ -128,7 +129,7 @@ namespace NZWalks.API.Controllers
             regionDomainModel.Name = updateRegionDTO.Name;
             regionDomainModel.RegionImageUrl = updateRegionDTO.RegionImageUrl;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             //Convert DomainModel to DTO
             var regionDTO = new RegionDTO
@@ -146,16 +147,16 @@ namespace NZWalks.API.Controllers
         [HttpDelete]
         [Route("{id:guid}")]
 
-        public IActionResult Delete([FromRoute]Guid id)
+        public async Task<IActionResult> Delete([FromRoute]Guid id)
         {
-            var regionDomainModel = _dbContext.Regions.FirstOrDefault(x=>x.Id == id);
+            var regionDomainModel = await _dbContext.Regions.FirstOrDefaultAsync(x=>x.Id == id);
             //Check if exists
             if(regionDomainModel == null)
             {
                 return NotFound();
             }
             _dbContext.Regions.Remove(regionDomainModel);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             //Map DomainModel to DTO
             var regionDTO = new RegionDTO
