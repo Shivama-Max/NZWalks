@@ -8,6 +8,7 @@ using NZWalks.API.Data;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories;
+using System.Text.Json;
 
 namespace NZWalks.API.Controllers
 {
@@ -19,12 +20,17 @@ namespace NZWalks.API.Controllers
         private readonly NZWalksDbContext _dbContext;
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<RegionsController> logger;
 
-        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository, IMapper mapper)
+        public RegionsController(NZWalksDbContext dbContext, 
+            IRegionRepository regionRepository, 
+            IMapper mapper, 
+            ILogger<RegionsController> logger)
         {
             this._dbContext = dbContext;
             this.regionRepository = regionRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         // GET ALL : https://localhost:portnumber/api/regions
@@ -32,6 +38,7 @@ namespace NZWalks.API.Controllers
         [Authorize(Roles = "Reader,Writer")]
         public async Task<IActionResult> GetAll()
         {
+            logger.LogInformation("GetAll Action Method was invoked...");
             //var regions = new List<Region>
             //{
             //    new Region
@@ -55,7 +62,7 @@ namespace NZWalks.API.Controllers
 
             //We will now use repository pattern
             var regionsDomain = await regionRepository.GetAllAsync();
-
+            logger.LogInformation($"Finished GetALl request with data : {JsonSerializer.Serialize(regionsDomain)}");
             //Map Domain Models to DTOs
             //var regionsDTO = new List<RegionDTO>();
             //foreach (var regionDomain in regionsDomain)
